@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Books</title>
+    <link rel="stylesheet" href="STATIC\CSS\styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Library Books</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>ISBN</th>
+                    <th>Published Date</th>
+                </tr>
+            </thead>
+            <tbody id="bookList"></tbody>
+        </table>
+    </div>
+
+    <script>
+        async function fetchBooks() {
+            let response = await fetch("http://127.0.0.1:8000/api/books/");
+            let books = await response.json();
+            let bookList = document.getElementById("bookList");
+            bookList.innerHTML = "";
+
+            books.forEach(book => {
+                let row = `<tr>
+                    <td>${book.title}</td>
+                    <td>${book.author}</td>
+                    <td>${book.isbn}</td>
+                    <td>${book.published_date}</td>
+                </tr>`;
+                bookList.innerHTML += row;
+            });
+        }
+
+        fetchBooks();
+    </script>
+</body>
+</html>

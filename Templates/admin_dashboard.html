@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="STATIC\CSS\styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Library Management - Admin Panel</h2>
+        <button onclick="logout()">Logout</button>
+        
+        <h3>Add New Book</h3>
+        <form id="bookForm">
+            <input type="text" id="title" placeholder="Book Title" required>
+            <input type="text" id="author" placeholder="Author" required>
+            <input type="text" id="isbn" placeholder="ISBN" required>
+            <input type="date" id="published_date" required>
+            <button type="submit">Add Book</button>
+        </form>
+
+        <h3>All Books</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>ISBN</th>
+                    <th>Published Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="bookList"></tbody>
+        </table>
+    </div>
+
+    <script>
+        async function fetchBooks() {
+            let response = await fetch("http://127.0.0.1:8000/api/books/");
+            let books = await response.json();
+            let bookList = document.getElementById("bookList");
+            bookList.innerHTML = "";
+
+            books.forEach(book => {
+                let row = `<tr>
+                    <td>${book.title}</td>
+                    <td>${book.author}</td>
+                    <td>${book.isbn}</td>
+                    <td>${book.published_date}</td>
+                    <td>
+                        <button onclick="deleteBook(${book.id})">Delete</button>
+                    </td>
+                </tr>`;
+                bookList.innerHTML += row;
+            });
+        }
+
+        document.getElementById("bookForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            let title = document.getElementById("title").value;
+            let author = document.getElementById("author").value;
+            let isbn = document.getElementById("isbn").value;
+            let published_date = document.getElementById("published_date").value;
+
+            let response = await fetch("http://127.0.0.1:8000/api/books/", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title, author, isbn, published_date }),
+            });
+
+            if (response.ok) {
+                fetchBooks();
+            }
+        });
+
+        async function deleteBook(bookId) {
+            await fetch(`http://127.0.0.1:8000/api/books/${bookId}/`, { method: "DELETE" });
+            fetchBooks();
+        }
+
+        function logout() {
+            localStorage.removeItem("token");
+            window.location.href = "admin_login.html";
+        }
+
+        fetchBooks();
+    </script>
+</body>
+</html>
